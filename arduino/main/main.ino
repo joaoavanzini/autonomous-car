@@ -1,57 +1,52 @@
 #include "ultrassonic.h"
 #include "motor_control.h"
 
-//UltrasonicSensor ultrasonic1();
+UltrasonicSensor ultrasonicRight(10, 11);
+UltrasonicSensor ultrasonicCenter(2, 3);
+UltrasonicSensor ultrasonicLeft(12, 13);
 MotorControl motorControl(9, 4, 8, 7, 6, 5);
 
 void setup() {
-    //ultrasonic1.begin();
-    motorControl.begin();
+    ultrasonicRight.begin();
+    ultrasonicCenter.begin();
+    ultrasonicLeft.begin();
 
+    motorControl.begin();
     motorControl.setSpeed(150);
 
-    Serial.begin(9600);
+    Serial.begin(115200);
 }
 
 void loop() {
-//    unsigned int distance = ultrasonic1.getDistance();
-//
-//    if (distance > 0 && distance <= 10) {
-//        motorControl.moveBackward();
-//    } else {
-//        motorControl.moveForward();
-//    }
-//
-//    float speedMPS = pwmToMetersPerSecond(motorControl.getSpeed());  // Converte PWM em m/s
-//    Serial.print("Velocidade (m/s): ");
-//    Serial.println(speedMPS);
-//
-//    delay(100);
+    if (Serial.available() > 0) {
+        char command = Serial.read();
+        executeCommand(command);
+    }
 
-    motorControl.moveForward();
-    delay(500);
-    motorControl.stop();
-    delay(1000);
-    motorControl.moveBackward();
-    delay(500);
-    motorControl.stop();
-    delay(1000);
-    motorControl.moveRight();
-    delay(200);
-    motorControl.stop();
-    delay(1000);
-    motorControl.moveLeft();
-    delay(200);
-    motorControl.stop();
-    delay(1000);
-
-    //motorControl.stop();
+    Serial.print("Right: ");
+    Serial.print(ultrasonicRight.getDistance());
+    Serial.print(" Center: ");
+    Serial.print(ultrasonicCenter.getDistance());
+    Serial.print(" Left: ");
+    Serial.println(ultrasonicLeft.getDistance());
+    Serial.println(" ");
 }
 
-// Função para converter PWM em velocidade em m/s
-//float pwmToMetersPerSecond(int pwmValue) {
-//    const int maxPWMValue = 255;
-//    const float maxSpeed = 1.0;  // Velocidade máxima em m/s
-//    return (float)pwmValue / maxPWMValue * maxSpeed;
-//}
-
+void executeCommand(char cmd) {
+    switch (cmd) {
+        case 'w':
+            motorControl.moveForward();
+            break;
+        case 'a':
+            motorControl.moveLeft();
+            break;
+        case 'd':
+            motorControl.moveRight();
+            break;
+        case 's':
+            motorControl.moveBackward();
+            break;
+        default:
+            motorControl.stop();
+    }
+}

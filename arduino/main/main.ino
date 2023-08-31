@@ -1,5 +1,6 @@
 #include "ultrassonic.h"
 #include "motor_control.h"
+#include <ArduinoJson.h>
 
 UltrasonicSensor ultrasonicRight(10, 11);
 UltrasonicSensor ultrasonicCenter(2, 3);
@@ -23,13 +24,18 @@ void loop() {
         executeCommand(command);
     }
 
-    Serial.print("Right: ");
-    Serial.print(ultrasonicRight.getDistance());
-    Serial.print(" Center: ");
-    Serial.print(ultrasonicCenter.getDistance());
-    Serial.print(" Left: ");
-    Serial.println(ultrasonicLeft.getDistance());
-    Serial.println(" ");
+    // Criar um objeto JSON para os dados dos sensores
+    StaticJsonDocument<256> jsonDoc;
+    jsonDoc["right"] = ultrasonicRight.getDistance();
+    jsonDoc["center"] = ultrasonicCenter.getDistance();
+    jsonDoc["left"] = ultrasonicLeft.getDistance();
+
+    // Serializar o objeto JSON e enviá-lo
+    String jsonData;
+    serializeJson(jsonDoc, jsonData);
+    Serial.println(jsonData);
+
+    delay(10);  // Aguardar um 1 decimo de segundo
 }
 
 void executeCommand(char cmd) {

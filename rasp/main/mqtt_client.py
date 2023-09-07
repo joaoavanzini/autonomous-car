@@ -29,7 +29,7 @@ class MQTTClient:
         try:
             data = json.loads(payload)
             direction = data.get('direction', 'STOP')
-            speed = data.get('speed', 50)
+            speed = data.get('speed', 100)
             
             # Mapping directions to Rover class methods
             direction_map = {

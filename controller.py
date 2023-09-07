@@ -7,10 +7,10 @@ MQTT_TOPIC_CONTROLLER = "/controller"
 
 # Define the MQTT message payload for each key, including speed
 KEY_MAPPINGS = {
-    keyboard.Key.up: '{"direction": "FORWARD", "speed": 50}',
-    keyboard.Key.down: '{"direction": "BACKWARD", "speed": 50}',
-    keyboard.Key.left: '{"direction": "LEFT", "speed": 50}',
-    keyboard.Key.right: '{"direction": "RIGHT", "speed": 50}'
+    keyboard.Key.up: '{"direction": "BACKWARD", "speed": 100}',
+    keyboard.Key.down: '{"direction": "FORWARD", "speed": 100}',
+    keyboard.Key.left: '{"direction": "LEFT", "speed": 100}',
+    keyboard.Key.right: '{"direction": "RIGHT", "speed": 100}'
 }
 
 def on_key_press(key):

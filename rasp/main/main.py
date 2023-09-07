@@ -15,4 +15,4 @@ if __name__ == "__main__":
             pass
     except KeyboardInterrupt:
         mqtt_client.client.disconnect()
-        GPIO.cleanup()
+        rover.cleanup_gpio()

@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 from motor import Motor
 from config import MOTOR1A_PIN, MOTOR1B_PIN, MOTOR1E_PIN, MOTOR2A_PIN, MOTOR2B_PIN, MOTOR2E_PIN, PWM_FREQUENCY
+import paho.mqtt.publish as mqtt_publish
 
 class Rover:
     def __init__(self):
@@ -8,6 +9,9 @@ class Rover:
         self.setup_motors()
 
     def setup_gpio(self):
+        # Clean up GPIO pins before setting up
+        GPIO.cleanup()
+
         # Pin configuration for motors
         self.motor1a = MOTOR1A_PIN
         self.motor1b = MOTOR1B_PIN
@@ -78,6 +82,14 @@ class Rover:
             self.motor2.stop()
         except Exception as e:
             self.report_error(f"Error while stopping: {str(e)}")
+
+    def cleanup_gpio(self):
+        # Clean up GPIO pins after use
+        GPIO.cleanup()
+
+    def __del__(self):
+        # Ensure GPIO cleanup when the object is deleted
+        self.cleanup_gpio()
 
     def report_error(self, error_message):
         # Send the error message to the /status topic

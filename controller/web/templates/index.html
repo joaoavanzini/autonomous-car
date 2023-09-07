@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Controle do Robô</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Controle do Robô</h1>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Controle de Movimento</h5>
+                        <button class="btn btn-primary" onclick="sendCommand('forward')">Frente</button>
+                        <button class="btn btn-primary" onclick="sendCommand('backward')">Ré</button>
+                        <button class="btn btn-primary" onclick="sendCommand('left')">Esquerda</button>
+                        <button class="btn btn-primary" onclick="sendCommand('right')">Direita</button>
+                        <button class="btn btn-danger" onclick="sendCommand('stop')">Parar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Gráfico de Dados</h5>
+                        <canvas id="sensorChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.min.js"></script>
+    <script>
+        function sendCommand(direction) {
+            var payload = { "direction": direction, "speed": 100 };
+            // Adicione aqui o código MQTT para enviar o payload
+            // Exemplo:
+            // mqtt_publish.single("/controller", JSON.stringify(payload), { hostname: "192.168.0.104" });
+            console.log("Published: " + JSON.stringify(payload));
+        }
+
+        // Exemplo de dados para o gráfico (substitua com seus próprios dados)
+        var sensorData = {
+            labels: ['Tempo 1', 'Tempo 2', 'Tempo 3', 'Tempo 4', 'Tempo 5'],
+            datasets: [{
+                label: 'Sensor Data',
+                data: [20, 25, 18, 30, 22], // Substitua com seus próprios valores
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+            }]
+        };
+
+        var ctx = document.getElementById('sensorChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: sensorData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

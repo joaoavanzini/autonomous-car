@@ -1,8 +1,6 @@
-# rover.py
 import RPi.GPIO as GPIO
 from motor import Motor
-from config import MOTOR1A_PIN, MOTOR1B_PIN, MOTOR1E_PIN, MOTOR2A_PIN, MOTOR2B_PIN, MOTOR2E_PIN, MQTT_BROKER_HOST, MQTT_TOPIC_STATUS
-import paho.mqtt.publish as mqtt_publish
+from config import MOTOR1A_PIN, MOTOR1B_PIN, MOTOR1E_PIN, MOTOR2A_PIN, MOTOR2B_PIN, MOTOR2E_PIN, PWM_FREQUENCY
 
 class Rover:
     def __init__(self):
@@ -24,8 +22,11 @@ class Rover:
         GPIO.setup(self.motor2b, GPIO.OUT)
 
     def setup_motors(self):
-        self.motor1 = Motor(MOTOR1E_PIN)
-        self.motor2 = Motor(MOTOR2E_PIN)
+        # Check if PWM objects already exist
+        if not hasattr(self, 'motor1'):
+            self.motor1 = Motor(MOTOR1E_PIN)
+        if not hasattr(self, 'motor2'):
+            self.motor2 = Motor(MOTOR2E_PIN)
 
     def move_forward(self, speed):
         try:

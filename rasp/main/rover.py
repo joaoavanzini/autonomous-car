@@ -1,4 +1,4 @@
-#rover.py
+# rover.py
 import RPi.GPIO as GPIO
 from motor import Motor
 from config import MOTOR1A_PIN, MOTOR1B_PIN, MOTOR1E_PIN, MOTOR2A_PIN, MOTOR2B_PIN, MOTOR2E_PIN, PWM_FREQUENCY
@@ -77,12 +77,14 @@ class Rover:
         except Exception as e:
             self.report_error(f"Error while turning left: {str(e)}")
 
-    def stop(self):
+    def stop(self, speed=None):
         try:
             self.motor1.stop()
             self.motor2.stop()
         except Exception as e:
             self.report_error(f"Error while stopping: {str(e)}")
+
+
 
     def cleanup_gpio(self):
         # Clean up GPIO pins after use

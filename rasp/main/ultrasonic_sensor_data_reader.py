@@ -4,10 +4,10 @@ import json
 from config import MQTT_BROKER_HOST, MQTT_DATA_SENSORS_TOPIC
 from mqtt_client import MQTTClient
 
-def read_sensor_data(serial_port):
+def read_ultrasonic_data(mqtt_client):
     try:
-        with serial.Serial(serial_port, baudrate=9600) as ser:
-            print(f"Serial connection to {serial_port} - open")
+        with serial.Serial("/dev/ttyACM0", baudrate=9600) as ser:
+            print("Serial connection - open")
 
             buffer = b""
 
@@ -19,7 +19,6 @@ def read_sensor_data(serial_port):
                     try:
                         json_data = buffer.decode()
                         print(json_data)
-                        mqtt_client = MQTTClient()
                         mqtt_client.publish_ultrasonic_data(json_data)
                     except Exception as e:
                         print(f"Error publishing ultrasonic data: {str(e)}")

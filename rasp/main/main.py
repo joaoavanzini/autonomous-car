@@ -3,8 +3,7 @@ from config import mqtt_client
 from rover import Rover
 from mqtt_client import MQTTClient
 import multiprocessing
-from ultrasonic_sensor_data_reader import read_sensor_data
-
+from ultrasonic_sensor_data_reader import read_ultrasonic_data
 
 def main():
     rover = Rover()
@@ -23,13 +22,6 @@ def main():
         mqtt_client.client.disconnect()
         rover.cleanup_gpio()
         ultrasonic_process.terminate()
-
-
-def read_ultrasonic_data(mqtt_client):
-    while True:
-        ultrasonic_data = read_sensor_data("/dev/ttyACM0")
-        if ultrasonic_data is not None:
-            mqtt_client.publish_ultrasonic_data(ultrasonic_data)
 
 if __name__ == "__main__":
     main()

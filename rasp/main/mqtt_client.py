@@ -3,7 +3,7 @@ import paho.mqtt.client as mqtt
 import json
 import logging
 from config import (
-    MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_CONTROLLER_TOPIC, MQTT_STATUS_TOPIC
+    MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_CONTROLLER_TOPIC, MQTT_STATUS_TOPIC, MQTT_DATA_SENSORS_TOPIC
 )
 from rover import Rover
 
@@ -64,3 +64,8 @@ class MQTTClient:
         logger.error(error_message)
         self.client.publish(MQTT_STATUS_TOPIC, error_message)
 
+    def publish_ultrasonic_data(self, ultrasonic_data):
+            try:
+                self.client.publish(MQTT_DATA_SENSORS_TOPIC, ultrasonic_data)
+            except Exception as e:
+                logger.error(f"Error publishing ultrasonic data: {str(e)}")

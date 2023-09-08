@@ -1,7 +1,11 @@
 # rover.py
 import RPi.GPIO as GPIO
 from motor import Motor
-from config import MOTOR1A_PIN, MOTOR1B_PIN, MOTOR1E_PIN, MOTOR2A_PIN, MOTOR2B_PIN, MOTOR2E_PIN, PWM_FREQUENCY
+from config import (
+    MOTOR1A_PIN, MOTOR1B_PIN, MOTOR1E_PIN, MOTOR2A_PIN, MOTOR2B_PIN, MOTOR2E_PIN,
+    PWM_FREQUENCY,
+    MQTT_BROKER_HOST, MQTT_BASE_TOPIC, MQTT_STATUS_TOPIC, MQTT_CONFIG_TOPIC
+)
 import paho.mqtt.publish as mqtt_publish
 
 class Rover:
@@ -96,4 +100,4 @@ class Rover:
 
     def report_error(self, error_message):
         # Send the error message to the /status topic
-        mqtt_publish.single(MQTT_TOPIC_STATUS, payload=error_message, hostname=MQTT_BROKER_HOST)
+        mqtt_publish.single(MQTT_STATUS_TOPIC, payload=error_message, hostname=MQTT_BROKER_HOST)

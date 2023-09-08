@@ -19,7 +19,7 @@ def read_ultrasonic_data(mqtt_client):
                     try:
                         json_data = buffer.decode()
                         print(json_data)
-                        mqtt_client.publish_ultrasonic_data(json_data)
+                        mqtt_client.publish_ultrasonic_data(json.dumps(json_data))
                     except Exception as e:
                         print(f"Error publishing ultrasonic data: {str(e)}")
                     buffer = b""

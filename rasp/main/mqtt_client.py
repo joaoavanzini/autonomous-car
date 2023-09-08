@@ -67,5 +67,6 @@ class MQTTClient:
     def publish_ultrasonic_data(self, ultrasonic_data):
             try:
                 self.client.publish(MQTT_DATA_SENSORS_TOPIC, ultrasonic_data)
+                print("chegou aqui")
             except Exception as e:
                 logger.error(f"Error publishing ultrasonic data: {str(e)}")

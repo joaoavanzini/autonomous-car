@@ -12,7 +12,7 @@ def main():
     mqtt_client.subscribe()
     mqtt_client.start()
 
-    ultrasonic_process = multiprocessing.Process(target=read_ultrasonic_data)
+    ultrasonic_process = multiprocessing.Process(target=read_ultrasonic_data, args=(mqtt_client,))
     ultrasonic_process.start()
 
     try:

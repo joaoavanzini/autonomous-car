@@ -3,7 +3,7 @@ from config import mqtt_client
 from rover import Rover
 import multiprocessing
 from ultrasonic_sensor_data_reader import read_ultrasonic_data
-from config import mqtt_client_instance as mqtt_client
+from config import mqtt_client
 
 def main():
     rover = Rover()

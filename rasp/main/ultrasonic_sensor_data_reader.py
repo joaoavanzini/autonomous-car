@@ -2,7 +2,7 @@
 import serial
 import json
 from config import MQTT_DATA_ULTRASONIC_TOPIC
-from config import mqtt_client_instance as mqtt_client
+from config import mqtt_client
 
 def read_ultrasonic_data(mqtt_client):
     try:

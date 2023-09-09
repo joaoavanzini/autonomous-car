@@ -4,7 +4,7 @@ from pynput import keyboard
 
 # MQTT Configuration
 MQTT_BROKER_HOST = "192.168.0.104"
-MQTT_TOPIC_CONTROLLER = "/controller"
+MQTT_TOPIC_CONTROLLER = "/rover/controller"
 
 # Define the MQTT message payload for each key, including speed
 KEY_MAPPINGS = {

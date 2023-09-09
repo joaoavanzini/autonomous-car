@@ -1,97 +1,57 @@
-# rover.py
-import RPi.GPIO as GPIO
-from motor import Motor
-from config import MOTOR1A_PIN, MOTOR1B_PIN, MOTOR1E_PIN, MOTOR2A_PIN, MOTOR2B_PIN, MOTOR2E_PIN, PWM_FREQUENCY, MQTT_STATUS_TOPIC, MQTT_BROKER_HOST
-import paho.mqtt.publish as mqtt_publish
+# mqtt_client.py
+import paho.mqtt.client as mqtt
+import json
+import logging
+from config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_TOPIC_CONTROLLER, MQTT_TOPIC_STATUS
+from rover import Rover
 
-class Rover:
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class MQTTClient:
     def __init__(self):
-        self.setup_gpio()
-        self.setup_motors()
+        self.client = mqtt.Client()
+        self.client.on_message = self.on_message
+        self.rover = Rover()
 
-    def setup_gpio(self):
-        # Clean up GPIO pins before setting up
-        GPIO.cleanup()
+    def connect(self):
+        self.client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
 
-        # Pin configuration for motors
-        self.motor1a = MOTOR1A_PIN
-        self.motor1b = MOTOR1B_PIN
-        self.motor2a = MOTOR2A_PIN
-        self.motor2b = MOTOR2B_PIN
+    def subscribe(self):
+        self.client.subscribe(MQTT_TOPIC_CONTROLLER)
 
-        GPIO.setwarnings(False)
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(self.motor1a, GPIO.OUT)
-        GPIO.setup(self.motor1b, GPIO.OUT)
-        GPIO.setup(self.motor2a, GPIO.OUT)
-        GPIO.setup(self.motor2b, GPIO.OUT)
+    def start(self):
+        self.client.loop_start()
 
-    def setup_motors(self):
-        # Check if PWM objects already exist
-        if not hasattr(self, 'motor1'):
-            self.motor1 = Motor(MOTOR1E_PIN)
-        if not hasattr(self, 'motor2'):
-            self.motor2 = Motor(MOTOR2E_PIN)
-
-    def move_forward(self, speed):
+    def on_message(self, client, userdata, msg):
+        payload = msg.payload.decode()
         try:
-            self.motor1.set_speed(speed)
-            self.motor2.set_speed(speed)
-            GPIO.output(self.motor1a, GPIO.HIGH)
-            GPIO.output(self.motor1b, GPIO.LOW)
-            GPIO.output(self.motor2a, GPIO.HIGH)
-            GPIO.output(self.motor2b, GPIO.LOW)
-        except Exception as e:
-            self.report_error(f"Error while moving forward: {str(e)}")
-
-    def move_backward(self, speed):
-        try:
-            self.motor1.set_speed(speed)
-            self.motor2.set_speed(speed)
-            GPIO.output(self.motor1a, GPIO.LOW)
-            GPIO.output(self.motor1b, GPIO.HIGH)
-            GPIO.output(self.motor2a, GPIO.LOW)
-            GPIO.output(self.motor2b, GPIO.HIGH)
-        except Exception as e:
-            self.report_error(f"Error while moving backward: {str(e)}")
-
-    def turn_right(self, speed):
-        try:
-            self.motor1.set_speed(speed)
-            self.motor2.set_speed(speed)
-            GPIO.output(self.motor1a, GPIO.HIGH)
-            GPIO.output(self.motor1b, GPIO.LOW)
-            GPIO.output(self.motor2a, GPIO.LOW)
-            GPIO.output(self.motor2b, GPIO.HIGH)
-        except Exception as e:
-            self.report_error(f"Error while turning right: {str(e)}")
-
-    def turn_left(self, speed):
-        try:
-            self.motor1.set_speed(speed)
-            self.motor2.set_speed(speed)
-            GPIO.output(self.motor1a, GPIO.LOW)
-            GPIO.output(self.motor1b, GPIO.HIGH)
-            GPIO.output(self.motor2a, GPIO.HIGH)
-            GPIO.output(self.motor2b, GPIO.LOW)
-        except Exception as e:
-            self.report_error(f"Error while turning left: {str(e)}")
-
-    def stop(self, speed=None):
-        try:
-            self.motor1.stop()
-            self.motor2.stop()
-        except Exception as e:
-            self.report_error(f"Error while stopping: {str(e)}")
-
-    def cleanup_gpio(self):
-        # Clean up GPIO pins after use
-        GPIO.cleanup()
-
-    def __del__(self):
-        # Ensure GPIO cleanup when the object is deleted
-        self.cleanup_gpio()
+            data = json.loads(payload)
+            direction = data.get('direction', 'STOP')
+            speed = data.get('speed', 100)
+            
+            # Mapping directions to Rover class methods
+            direction_map = {
+                'FORWARD': self.rover.move_forward,
+                'BACKWARD': self.rover.move_backward,
+                'RIGHT': self.rover.turn_right,
+                'LEFT': self.rover.turn_left,
+                'STOP': self.rover.stop
+            }
+            
+            # Execute the corresponding action
+            action = direction_map.get(direction)
+            if action:
+                action(speed)
+            else:
+                error_message = f"Invalid direction: {direction}"
+                logger.error(error_message)
+                self.report_error(error_message)
+        except json.JSONDecodeError:
+            logger.error("Error decoding JSON in MQTT payload")
 
     def report_error(self, error_message):
-        # Send the error message to the /status topic
-        mqtt_publish.single(MQTT_STATUS_TOPIC, payload=error_message, hostname=MQTT_BROKER_HOST)
+        # Send the error message to the /status topic and log it
+        logger.error(error_message)
+        self.client.publish(MQTT_TOPIC_STATUS, error_message)

@@ -2,7 +2,7 @@
 import paho.mqtt.client as mqtt
 import json
 import logging
-from config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_CONTROLLER_TOPIC, MQTT_STATUS_TOPIC, MQTT_STATUS_TOPIC
+from config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_TOPIC_CONTROLLER, MQTT_TOPIC_STATUS
 from rover import Rover
 
 # Configure logging
@@ -19,7 +19,7 @@ class MQTTClient:
         self.client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
 
     def subscribe(self):
-        self.client.subscribe(MQTT_CONTROLLER_TOPIC)
+        self.client.subscribe(MQTT_TOPIC_CONTROLLER)
 
     def start(self):
         self.client.loop_start()
@@ -44,12 +44,6 @@ class MQTTClient:
             action = direction_map.get(direction)
             if action:
                 action(speed)
-                status_message = {
-                    "turning to": direction,
-                    "speed": speed
-                }
-                self.client.publish(MQTT_STATUS_TOPIC, json.dumps(status_message))
-
             else:
                 error_message = f"Invalid direction: {direction}"
                 logger.error(error_message)
@@ -60,4 +54,4 @@ class MQTTClient:
     def report_error(self, error_message):
         # Send the error message to the /status topic and log it
         logger.error(error_message)
-        self.client.publish(MQTT_STATUS_TOPIC, error_message)
+        self.client.publish(MQTT_TOPIC_STATUS, error_message)

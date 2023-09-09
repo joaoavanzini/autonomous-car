@@ -32,8 +32,11 @@ class UltrasonicDataReaderProcess(multiprocessing.Process):
                                 "event": "ultrasonic_data",
                                 "data": json_data
                             }
-                            self.mqtt_client.publish(MQTT_DATA_ULTRASONIC_TOPIC, json.dumps(ultrasonic_event))
-                            print("#2")
+                            try:
+                                self.mqtt_client.publish(MQTT_DATA_ULTRASONIC_TOPIC, json.dumps(ultrasonic_event))
+                                print("Mensagem publicada com sucesso.")
+                            except Exception as e:
+                                print(f"Erro ao publicar mensagem MQTT: {str(e)}")
                         except Exception as e:
                             print(f"Error publishing ultrasonic data: {str(e)}")
                         buffer = b""

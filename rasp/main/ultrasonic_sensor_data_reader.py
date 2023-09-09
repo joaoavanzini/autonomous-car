@@ -8,6 +8,7 @@ class UltrasonicDataReaderProcess(multiprocessing.Process):
     def __init__(self, mqtt_client):
         super(UltrasonicDataReaderProcess, self).__init__()
         self.mqtt_client = mqtt_client
+        print("#9")
 
     def run(self):
         try:
@@ -24,6 +25,7 @@ class UltrasonicDataReaderProcess(multiprocessing.Process):
                         try:
                             json_data = buffer.decode('utf-8', 'ignore')  # Ignorar caracteres inválidos
                             print(json_data)
+                            print("#1")
                             
                             # Enviar os dados do sensor em um evento
                             ultrasonic_event = {
@@ -31,6 +33,7 @@ class UltrasonicDataReaderProcess(multiprocessing.Process):
                                 "data": json_data
                             }
                             self.mqtt_client.publish(MQTT_DATA_ULTRASONIC_TOPIC, json.dumps(ultrasonic_event))
+                            print("#2")
                         except Exception as e:
                             print(f"Error publishing ultrasonic data: {str(e)}")
                         buffer = b""

@@ -1,7 +1,7 @@
 # ultrasonic_sensor_data_reader.py
 import serial
 import json
-from config import MQTT_BROKER_HOST, MQTT_DATA_SENSORS_TOPIC, mqtt_client
+from config import MQTT_DATA_SENSORS_TOPIC, mqtt_client
 
 def read_ultrasonic_data():
     try:

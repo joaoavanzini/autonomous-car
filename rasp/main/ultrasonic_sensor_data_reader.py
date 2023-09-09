@@ -3,7 +3,7 @@ import serial
 import json
 from config import MQTT_BROKER_HOST, MQTT_DATA_ULTRASONIC_TOPIC, mqtt_client
 
-def read_ultrasonic_data():
+def read_ultrasonic_data(mqtt_client):
     try:
         with serial.Serial("/dev/ttyACM0", baudrate=9600) as ser:
             print("Serial connection - open")

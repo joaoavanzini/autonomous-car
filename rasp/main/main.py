@@ -7,12 +7,11 @@ from ultrasonic_sensor_data_reader import read_ultrasonic_data
 
 def main():
     rover = Rover()
-    mqtt_client = MQTTClient()
     mqtt_client.connect()
     mqtt_client.subscribe()
     mqtt_client.start()
 
-    ultrasonic_process = multiprocessing.Process(target=read_ultrasonic_data)
+    ultrasonic_process = multiprocessing.Process(target=read_ultrasonic_data, args=(mqtt_client,))
     ultrasonic_process.start()
 
     try:

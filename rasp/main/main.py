@@ -2,7 +2,7 @@
 from config import mqtt_client
 from rover import Rover
 import multiprocessing
-from ultrasonic_sensor_data_reader import read_ultrasonic_data
+from ultrasonic_sensor_data_reader import UltrasonicDataReaderProcess
 from config import MQTT_BROKER_HOST, MQTT_CONTROLLER_TOPIC
 
 def main():
@@ -11,7 +11,7 @@ def main():
     mqtt_client.subscribe(topic=MQTT_CONTROLLER_TOPIC)
     mqtt_client.loop_start()
 
-    ultrasonic_process = multiprocessing.Process(target=read_ultrasonic_data)
+    ultrasonic_process = UltrasonicDataReaderProcess(mqtt_client)  # Passa mqtt_client como argumento
     ultrasonic_process.start()
 
     try:

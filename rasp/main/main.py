@@ -3,13 +3,13 @@ from config import mqtt_client
 from rover import Rover
 import multiprocessing
 from ultrasonic_sensor_data_reader import read_ultrasonic_data
-from config import mqtt_client, MQTT_BROKER_HOST, MQTT_CONTROLLER_TOPIC
+from config import MQTT_BROKER_HOST, MQTT_CONTROLLER_TOPIC
 
 def main():
     rover = Rover()
     mqtt_client.connect(host=MQTT_BROKER_HOST)
     mqtt_client.subscribe(topic=MQTT_CONTROLLER_TOPIC)
-    mqtt_client.start()
+    mqtt_client.loop_start()
 
     ultrasonic_process = multiprocessing.Process(target=read_ultrasonic_data)
     ultrasonic_process.start()
@@ -18,7 +18,7 @@ def main():
         while True:
             pass
     except KeyboardInterrupt:
-        mqtt_client.client.disconnect()
+        mqtt_client.disconnect()
         rover.cleanup_gpio()
         ultrasonic_process.terminate()
 

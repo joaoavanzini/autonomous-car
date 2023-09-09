@@ -2,9 +2,7 @@
 import paho.mqtt.client as mqtt
 import json
 import logging
-from config import (
-    MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_CONTROLLER_TOPIC, MQTT_STATUS_TOPIC, MQTT_DATA_SENSORS_TOPIC, MQTT_DATA_ULTRASONIC_TOPIC
-)
+from config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_TOPIC_CONTROLLER, MQTT_STATUS_TOPIC, MQTT_TOPIC_STATUS
 from rover import Rover
 
 # Configure logging
@@ -21,7 +19,7 @@ class MQTTClient:
         self.client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
 
     def subscribe(self):
-        self.client.subscribe(MQTT_CONTROLLER_TOPIC)
+        self.client.subscribe(MQTT_TOPIC_CONTROLLER)
 
     def start(self):
         self.client.loop_start()
@@ -32,7 +30,7 @@ class MQTTClient:
             data = json.loads(payload)
             direction = data.get('direction', 'STOP')
             speed = data.get('speed', 100)
-
+            
             # Mapping directions to Rover class methods
             direction_map = {
                 'FORWARD': self.rover.move_forward,
@@ -41,25 +39,17 @@ class MQTTClient:
                 'LEFT': self.rover.turn_left,
                 'STOP': self.rover.stop
             }
-
+            
             # Execute the corresponding action
             action = direction_map.get(direction)
             if action:
                 action(speed)
-                # Enviar mensagem informativa para MQTT_STATUS_TOPIC
                 status_message = {
                     "turning to": direction,
                     "speed": speed
                 }
                 self.client.publish(MQTT_STATUS_TOPIC, json.dumps(status_message))
 
-                # Verifique se há um evento de ultrassom no payload e publique-o no tópico MQTT_DATA_ULTRASONIC_TOPIC
-                if 'ultrasonic' in data:
-                    ultrasonic_event = {
-                        "event": "ultrasonic_data",
-                        "data": data['ultrasonic']
-                    }
-                    self.client.publish(MQTT_DATA_ULTRASONIC_TOPIC, json.dumps(ultrasonic_event))
             else:
                 error_message = f"Invalid direction: {direction}"
                 logger.error(error_message)
@@ -70,10 +60,4 @@ class MQTTClient:
     def report_error(self, error_message):
         # Send the error message to the /status topic and log it
         logger.error(error_message)
-        self.client.publish(MQTT_STATUS_TOPIC, error_message)
-
-    def publish_ultrasonic_data(self, ultrasonic_data):
-        try:
-            self.client.publish(MQTT_DATA_SENSORS_TOPIC, ultrasonic_data)
-        except Exception as e:
-            logger.error(f"Error publishing ultrasonic data: {str(e)}")
+        self.client.publish(MQTT_TOPIC_STATUS, error_message)

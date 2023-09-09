@@ -1,26 +1,18 @@
 # main.py
 from config import mqtt_client
 from rover import Rover
-import multiprocessing
-from ultrasonic_sensor_data_reader import UltrasonicDataReaderProcess
-from config import MQTT_BROKER_HOST, MQTT_CONTROLLER_TOPIC
+from mqtt_client import MQTTClient
 
-def main():
+if __name__ == "__main__":
     rover = Rover()
-    mqtt_client.connect(host=MQTT_BROKER_HOST)
-    mqtt_client.subscribe(topic=MQTT_CONTROLLER_TOPIC)
-    mqtt_client.loop_start()
-
-    ultrasonic_process = UltrasonicDataReaderProcess(mqtt_client)
-    ultrasonic_process.start()
+    mqtt_client = MQTTClient()
+    mqtt_client.connect()
+    mqtt_client.subscribe()
+    mqtt_client.start()
 
     try:
         while True:
             pass
     except KeyboardInterrupt:
-        mqtt_client.disconnect()
+        mqtt_client.client.disconnect()
         rover.cleanup_gpio()
-        ultrasonic_process.terminate()
-
-if __name__ == "__main__":
-    main()

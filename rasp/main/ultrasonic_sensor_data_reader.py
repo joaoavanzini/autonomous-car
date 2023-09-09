@@ -22,7 +22,7 @@ class UltrasonicDataReaderProcess(multiprocessing.Process):
                         buffer = b"{"
                     elif buffer and data == b'\n':
                         try:
-                            json_data = buffer.decode()
+                            json_data = buffer.decode('utf-8', 'ignore')  # Ignorar caracteres inválidos
                             print(json_data)
                             
                             # Enviar os dados do sensor em um evento

@@ -19,17 +19,14 @@ class MQTTClient:
 
     def connect(self):
         self.client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
-        print("#8")
 
     def subscribe(self):
         self.client.subscribe(MQTT_CONTROLLER_TOPIC)
-        print("#7")
 
     def start(self):
         self.client.loop_start()
 
     def on_message(self, client, userdata, msg):
-        print("#6")
         payload = msg.payload.decode()
         try:
             data = json.loads(payload)
@@ -62,7 +59,6 @@ class MQTTClient:
                         "event": "ultrasonic_data",
                         "data": data['ultrasonic']
                     }
-                    print("#3")
                     self.client.publish(MQTT_DATA_ULTRASONIC_TOPIC, json.dumps(ultrasonic_event))
             else:
                 error_message = f"Invalid direction: {direction}"
@@ -71,16 +67,13 @@ class MQTTClient:
         except json.JSONDecodeError:
             logger.error("Error decoding JSON in MQTT payload")
 
-
     def report_error(self, error_message):
         # Send the error message to the /status topic and log it
         logger.error(error_message)
         self.client.publish(MQTT_STATUS_TOPIC, error_message)
 
     def publish_ultrasonic_data(self, ultrasonic_data):
-            print("#4")
-            try:
-                self.client.publish(MQTT_DATA_SENSORS_TOPIC, ultrasonic_data)
-                print("#5")
-            except Exception as e:
-                logger.error(f"Error publishing ultrasonic data: {str(e)}")
+        try:
+            self.client.publish(MQTT_DATA_SENSORS_TOPIC, ultrasonic_data)
+        except Exception as e:
+            logger.error(f"Error publishing ultrasonic data: {str(e)}")

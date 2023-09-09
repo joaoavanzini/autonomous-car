@@ -8,40 +8,28 @@ class UltrasonicDataReaderProcess(multiprocessing.Process):
     def __init__(self, mqtt_client):
         super(UltrasonicDataReaderProcess, self).__init__()
         self.mqtt_client = mqtt_client
-        print("#9")
 
     def run(self):
         try:
             with serial.Serial("/dev/ttyACM0", baudrate=9600) as ser:
                 print("Serial connection - open")
-
                 buffer = b""
-
                 while True:
                     data = ser.read(1)
                     if data == b'{':
                         buffer = b"{"
                     elif buffer and data == b'\n':
                         try:
-                            json_data = buffer.decode('utf-8', 'ignore')  # Ignorar caracteres inválidos
-                            print(json_data)
-                            print("#1")
-                            
-                            # Enviar os dados do sensor em um evento
+                            json_data = buffer.decode('utf-8', 'ignore')
                             ultrasonic_event = {
                                 "event": "ultrasonic_data",
                                 "data": json_data
                             }
-                            try:
-                                self.mqtt_client.publish(MQTT_DATA_ULTRASONIC_TOPIC, json.dumps(ultrasonic_event))
-                                print("Mensagem publicada com sucesso.")
-                            except Exception as e:
-                                print(f"Erro ao publicar mensagem MQTT: {str(e)}")
+                            self.mqtt_client.publish(MQTT_DATA_ULTRASONIC_TOPIC, json.dumps(ultrasonic_event))
                         except Exception as e:
                             print(f"Error publishing ultrasonic data: {str(e)}")
                         buffer = b""
                     elif buffer:
                         buffer += data
-
         except Exception as e:
             print(f"Error reading serial data: {str(e)}")

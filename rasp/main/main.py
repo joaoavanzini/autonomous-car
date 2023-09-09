@@ -11,7 +11,7 @@ def main():
     mqtt_client.subscribe(topic=MQTT_CONTROLLER_TOPIC)
     mqtt_client.loop_start()
 
-    ultrasonic_process = UltrasonicDataReaderProcess(mqtt_client)  # Passa mqtt_client como argumento
+    ultrasonic_process = UltrasonicDataReaderProcess(mqtt_client)
     ultrasonic_process.start()
 
     try:

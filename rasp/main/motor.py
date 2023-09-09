@@ -12,7 +12,6 @@ class Motor:
         if self.pwm is None:
             # Set up the GPIO channel as an output
             GPIO.setup(self.pwm_pin, GPIO.OUT)
-
             # Create a new PWM object
             self.pwm = GPIO.PWM(self.pwm_pin, PWM_FREQUENCY)
             self.pwm.start(0)

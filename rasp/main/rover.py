@@ -25,10 +25,7 @@ class Rover:
 
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(self.motor1a, GPIO.OUT)
-        GPIO.setup(self.motor1b, GPIO.OUT)
-        GPIO.setup(self.motor2a, GPIO.OUT)
-        GPIO.setup(self.motor2b, GPIO.OUT)
+        GPIO.setup([self.motor1a, self.motor1b, self.motor2a, self.motor2b], GPIO.OUT)
 
     def setup_motors(self):
         # Check if PWM objects already exist
@@ -87,8 +84,6 @@ class Rover:
             self.motor2.stop()
         except Exception as e:
             self.report_error(f"Error while stopping: {str(e)}")
-
-
 
     def cleanup_gpio(self):
         # Clean up GPIO pins after use

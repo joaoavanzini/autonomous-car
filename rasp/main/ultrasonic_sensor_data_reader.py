@@ -2,6 +2,7 @@
 import serial
 import json
 from config import MQTT_DATA_ULTRASONIC_TOPIC
+import multiprocessing
 
 class UltrasonicDataReaderProcess(multiprocessing.Process):
     def __init__(self, mqtt_client):

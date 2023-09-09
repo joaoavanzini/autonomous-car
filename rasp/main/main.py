@@ -1,9 +1,9 @@
 # main.py
 from config import mqtt_client
 from rover import Rover
-from mqtt_client import MQTTClient
 import multiprocessing
 from ultrasonic_sensor_data_reader import read_ultrasonic_data
+from config import mqtt_client_instance as mqtt_client
 
 def main():
     rover = Rover()

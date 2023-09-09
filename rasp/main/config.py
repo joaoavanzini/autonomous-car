@@ -40,4 +40,4 @@ GPIO.setup(MOTOR2B_PIN, GPIO.OUT)
 GPIO.setup(MOTOR2E_PIN, GPIO.OUT)
 
 # Create MQTT client
-mqtt_client = mqtt.Client()
+mqtt_client_instance = mqtt.Client()

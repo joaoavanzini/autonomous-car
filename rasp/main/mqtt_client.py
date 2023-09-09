@@ -2,7 +2,7 @@
 import paho.mqtt.client as mqtt
 import json
 import logging
-from config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_TOPIC_CONTROLLER, MQTT_STATUS_TOPIC, MQTT_TOPIC_STATUS
+from config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_CONTROLLER_TOPIC, MQTT_STATUS_TOPIC, MQTT_STATUS_TOPIC
 from rover import Rover
 
 # Configure logging
@@ -19,7 +19,7 @@ class MQTTClient:
         self.client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 60)
 
     def subscribe(self):
-        self.client.subscribe(MQTT_TOPIC_CONTROLLER)
+        self.client.subscribe(MQTT_CONTROLLER_TOPIC)
 
     def start(self):
         self.client.loop_start()
@@ -60,4 +60,4 @@ class MQTTClient:
     def report_error(self, error_message):
         # Send the error message to the /status topic and log it
         logger.error(error_message)
-        self.client.publish(MQTT_TOPIC_STATUS, error_message)
+        self.client.publish(MQTT_STATUS_TOPIC, error_message)

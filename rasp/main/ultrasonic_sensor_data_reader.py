@@ -18,7 +18,6 @@ def read_ultrasonic_data():
                     try:
                         json_data = buffer.decode()
                         print(json_data)
-                        # Use mqtt_client para publicar os dados
                         mqtt_client.publish(MQTT_DATA_SENSORS_TOPIC, json_data)
                     except Exception as e:
                         print(f"Error publishing ultrasonic data: {str(e)}")

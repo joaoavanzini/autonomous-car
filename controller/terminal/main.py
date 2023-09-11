@@ -4,7 +4,7 @@ import uuid
 
 # MQTT Configuration
 MQTT_BROKER_HOST = "192.168.0.105"
-MQTT_TOPIC_CONTROLLER = "/controller"
+MQTT_TOPIC_CONTROLLER = "/rover/controller"
 
 # Generate a random user ID
 user_id = str(uuid.uuid4())

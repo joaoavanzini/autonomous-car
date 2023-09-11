@@ -1,11 +1,7 @@
 import serial
 import json
 import paho.mqtt.client as mqtt
-
-# MQTT Broker settings
-MQTT_BROKER_HOST = "192.168.0.104"
-MQTT_BROKER_PORT = 1883
-MQTT_DATA_ULTRASONIC_TOPIC = "/rover/ultrasonic"
+from config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_TOPIC_SENSOR_ULTRASONIC
 
 # Create an MQTT client instance
 client = mqtt.Client("UltrasonicDataReader")
@@ -42,7 +38,7 @@ try:
                         "event": "ultrasonic_data",
                         "data": json_data
                     }
-                    client.publish(MQTT_DATA_ULTRASONIC_TOPIC, json.dumps(ultrasonic_event))
+                    client.publish(MQTT_TOPIC_SENSOR_ULTRASONIC, json.dumps(ultrasonic_event))
                     print("Message published successfully.")
                 except Exception as e:
                     print(f"Error processing ultrasonic data: {str(e)}")

@@ -41,7 +41,6 @@ try:
                         "data": json_data
                     }
                     client.publish(MQTT_TOPIC_SENSOR_ULTRASONIC, json.dumps(ultrasonic_event))
-                    print("Message published successfully.")
                 except Exception as e:
                     print(f"Error processing ultrasonic data: {str(e)}")
                 buffer = b""

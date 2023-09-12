@@ -9,34 +9,35 @@ MPUSensor mpuSensor;
 
 void setup() {
   Serial.begin(9600);
-  if (!mpuSensor.begin()) {
-    Serial.println("Failed to find MPU6050 chip");
-    while (1) {
-      delay(10);
-    }
-  }
-  Serial.println("MPU6050 Found!");
+  leftSensor.begin();
+  centralSensor.begin();
+  rightSensor.begin();
+  mpuSensor.begin();
 }
 
 void loop() {
-  DynamicJsonDocument jsonDoc(200);
+  DynamicJsonDocument ultrasonicJson(200);
+  DynamicJsonDocument mpuJson(200);
 
-  float leftDistance = leftSensor.measureDistance();
-  float centralDistance = centralSensor.measureDistance();
-  float rightDistance = rightSensor.measureDistance();
+  leftSensor.update();
+  centralSensor.update();
+  rightSensor.update();
+  mpuSensor.update();
 
-  JsonObject sensorData = jsonDoc.to<JsonObject>();
-  sensorData["acceleration_x"] = mpuSensor.getAccelerationX();
-  sensorData["acceleration_y"] = mpuSensor.getAccelerationY();
-  sensorData["acceleration_z"] = mpuSensor.getAccelerationZ();
-  sensorData["gyro_x"] = mpuSensor.getGyroX();
-  sensorData["gyro_y"] = mpuSensor.getGyroY();
-  sensorData["gyro_z"] = mpuSensor.getGyroZ();
-  sensorData["temperature"] = mpuSensor.getTemperature();
-  sensorData["left"] = leftDistance;
-  sensorData["central"] = centralDistance;
-  sensorData["right"] = rightDistance;
+  ultrasonicJson["left"] = leftSensor.getDistance();
+  ultrasonicJson["central"] = centralSensor.getDistance();
+  ultrasonicJson["right"] = rightSensor.getDistance();
 
-  serializeJson(jsonDoc, Serial);
+  mpuJson["acceleration_x"] = mpuSensor.getAccelerationX();
+  mpuJson["acceleration_y"] = mpuSensor.getAccelerationY();
+  mpuJson["acceleration_z"] = mpuSensor.getAccelerationZ();
+  mpuJson["gyro_x"] = mpuSensor.getGyroX();
+  mpuJson["gyro_y"] = mpuSensor.getGyroY();
+  mpuJson["gyro_z"] = mpuSensor.getGyroZ();
+  mpuJson["temperature"] = mpuSensor.getTemperature();
+
+  serializeJson(ultrasonicJson, Serial);
+  Serial.println();
+  serializeJson(mpuJson, Serial);
   Serial.println();
 }

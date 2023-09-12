@@ -1,5 +1,3 @@
-// MPUSensor.h
-
 #ifndef MPUSensor_h
 #define MPUSensor_h
 
@@ -10,7 +8,7 @@
 class MPUSensor {
 public:
   MPUSensor();
-  bool begin();
+  void begin();
   void update();
   float getAccelerationX();
   float getAccelerationY();
@@ -22,6 +20,8 @@ public:
 
 private:
   Adafruit_MPU6050 mpu;
+  sensors_event_t a, g, temp;
+  unsigned long lastReadingTime;
 };
 
 #endif

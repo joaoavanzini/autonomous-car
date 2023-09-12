@@ -1,3 +1,4 @@
+//./static/js/style.js
 document.addEventListener('DOMContentLoaded', function() {
     var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
 

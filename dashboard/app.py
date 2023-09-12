@@ -2,33 +2,36 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO
 import json
 import paho.mqtt.client as mqtt
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecretkey'
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+CORS(app)
 
 # Configurações MQTT
 MQTT_BROKER_HOST = "192.168.0.105"
 MQTT_BROKER_PORT = 1883
-MQTT_TOPIC = "/rover/ultrasonic"
+MQTT_TOPIC_ULTRASONIC = "/rover/sensors/ultrasonic"
+MQTT_TOPIC_MPU6050 = "/rover/sensors/mpu6050"
 
-ultrasonic_data = {
-    "left": [],
-    "center": [],
-    "right": []
-}
+ultrasonic_data = {}
+mpu6050_data = {}
 
 def on_connect(client, userdata, flags, rc):
-    client.subscribe(MQTT_TOPIC)
+    client.subscribe(MQTT_TOPIC_ULTRASONIC)
+    client.subscribe(MQTT_TOPIC_MPU6050)
 
 def on_message(client, userdata, msg):
     try:
         data = json.loads(msg.payload.decode())
         sensor_data = json.loads(data["data"])
-        ultrasonic_data["left"].append(sensor_data["left"])
-        ultrasonic_data["center"].append(sensor_data["center"])
-        ultrasonic_data["right"].append(sensor_data["right"])
-        socketio.emit('update', {'left': sensor_data["left"], 'center': sensor_data["center"], 'right': sensor_data["right"]}, namespace='/test')
+        if msg.topic == MQTT_TOPIC_ULTRASONIC:
+            ultrasonic_data.update(sensor_data)
+            socketio.emit('update_ultrasonic', ultrasonic_data, namespace='/test')
+        elif msg.topic == MQTT_TOPIC_MPU6050:
+            mpu6050_data.update(sensor_data)
+            socketio.emit('update_mpu6050', mpu6050_data, namespace='/test')
     except Exception as e:
         print("Erro ao processar a mensagem MQTT:", str(e))
 
@@ -44,7 +47,8 @@ def index():
 @socketio.on('connect', namespace='/test')
 def test_connect():
     # Envia os valores iniciais para a página quando um cliente se conecta
-    socketio.emit('update', {'left': ultrasonic_data["left"][-1], 'center': ultrasonic_data["center"][-1], 'right': ultrasonic_data["right"][-1]}, namespace='/test')
+    socketio.emit('update_ultrasonic', ultrasonic_data, namespace='/test')
+    socketio.emit('update_mpu6050', mpu6050_data, namespace='/test')
 
 if __name__ == '__main__':
     mqtt_client.loop_start()

@@ -1,88 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard de Sensores Ultrassônicos</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-        }
-
-        .sensor-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .sensor-block {
-            width: 200px;
-            height: 150px;
-            background-color: #fff;
-            border: 2px solid #000;
-            text-align: center;
-            line-height: 150px;
-            font-size: 24px;
-            margin: 10px;
-            position: relative;
-        }
-
-        .sensor-label {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .red-block {
-            background-color: red;
-        }
-
-        .yellow-block {
-            background-color: yellow;
-        }
-
-        .green-block {
-            background-color: green;
-        }
-    </style>
+    <title>Rover Sensor Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
-    <script>
-        var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
-
-        socket.on('update', function(data) {
-            updateBlock('left-block', 'Esquerda', data.left);
-            updateBlock('center-block', 'Centro', data.center);
-            updateBlock('right-block', 'Direita', data.right);
-        });
-
-        function updateBlock(elementId, label, distance) {
-            var element = document.getElementById(elementId);
-            element.innerHTML = distance.toFixed(2) + " cm";
-            element.className = 'sensor-block';
-            if (distance >= 0 && distance < 10) {
-                element.classList.add('red-block');
-            } else if (distance >= 10 && distance < 15) {
-                element.classList.add('yellow-block');
-            } else {
-                element.classList.add('green-block');
-            }
-
-            // Adiciona a posição do sensor
-            var sensorLabel = document.createElement('div');
-            sensorLabel.className = 'sensor-label';
-            sensorLabel.innerHTML = label;
-            element.appendChild(sensorLabel);
-        }
-    </script>
 </head>
 <body>
-    <div class="sensor-container">
-        <div id="left-block" class="sensor-block"></div>
-        <div id="center-block" class="sensor-block"></div>
-        <div id="right-block" class="sensor-block"></div>
-    </div>
+    <h1>Rover Sensor Dashboard</h1>
+
+    <h2>Ultrasonic Data</h2>
+    <p><strong>Left:</strong> <span id="ultrasonic-left"></span></p>
+    <p><strong>Central:</strong> <span id="ultrasonic-central"></span></p>
+    <p><strong>Right:</strong> <span id="ultrasonic-right"></span></p>
+
+    <h2>MPU6050 Data</h2>
+    <p><strong>Acceleration X:</strong> <span id="mpu6050-acceleration-x"></span></p>
+    <p><strong>Acceleration Y:</strong> <span id="mpu6050-acceleration-y"></span></p>
+    <p><strong>Acceleration Z:</strong> <span id="mpu6050-acceleration-z"></span></p>
+    <p><strong>Gyro X:</strong> <span id="mpu6050-gyro-x"></span></p>
+    <p><strong>Gyro Y:</strong> <span id="mpu6050-gyro-y"></span></p>
+    <p><strong>Gyro Z:</strong> <span id="mpu6050-gyro-z"></span></p>
+    <p><strong>Temperature:</strong> <span id="mpu6050-temperature"></span></p>
+
+    <script src="{{ url_for('static', filename='js/socketio.js') }}"></script>
 </body>
 </html>

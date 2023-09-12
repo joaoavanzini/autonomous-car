@@ -41,13 +41,13 @@ try:
             elif ultrasonic_buffer and data == b'\n':
                 try:
                     ultrasonic_json_data = ultrasonic_buffer.decode('utf-8', 'ignore')
-                    print(ultrasonic_json_data)
-                    
-                    # Publish the ultrasonic data to the MQTT topic
                     ultrasonic_event = {
                         "event": "ultrasonic_data",
-                        "data": ultrasonic_json_data
+                        "data": ultrasonic_json_data.strip()
                     }
+                    print(ultrasonic_event)
+                    
+                    # Publish the ultrasonic data to the MQTT topic
                     client.publish(MQTT_TOPIC_SENSOR_ULTRASONIC, json.dumps(ultrasonic_event))
                 except Exception as e:
                     print(f"Error processing ultrasonic data: {str(e)}")
@@ -55,13 +55,13 @@ try:
             elif mpu6050_buffer and data == b'\n':
                 try:
                     mpu6050_json_data = mpu6050_buffer.decode('utf-8', 'ignore')
-                    print(mpu6050_json_data)
-                    
-                    # Publish the MPU6050 data to the MQTT topic
                     mpu6050_event = {
                         "event": "mpu6050_data",
-                        "data": mpu6050_json_data
+                        "data": mpu6050_json_data.strip()
                     }
+                    print(mpu6050_event)
+                    
+                    # Publish the MPU6050 data to the MQTT topic
                     client.publish(MQTT_TOPIC_SENSOR_MPU6050, json.dumps(mpu6050_event))
                 except Exception as e:
                     print(f"Error processing MPU6050 data: {str(e)}")

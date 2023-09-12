@@ -1,15 +1,7 @@
-# start_sensors.py
-
 import serial
 import json
 import paho.mqtt.client as mqtt
-from config import MQTT_BROKER_HOST, MQTT_BROKER_PORT
-
-# Tópico MQTT para o sensor MPU6050
-MQTT_TOPIC_SENSOR_MPU6050 = "/rover/sensors/mpu6050"
-
-# Tópico MQTT para o sensor HCSR05
-MQTT_TOPIC_SENSOR_ULTRASONIC = "/rover/sensors/ultrasonic"
+from config import MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_TOPIC_SENSOR_ULTRASONIC, MQTT_TOPIC_SENSOR_MPU6050
 
 # Create an MQTT client instance
 client = mqtt.Client("SensorDataReader")
@@ -30,46 +22,38 @@ try:
     with serial.Serial("/dev/ttyACM0", baudrate=9600) as ser:
         print("Serial connection - open")
 
-        ultrasonic_buffer = b""
-        mpu6050_buffer = b""
-        
+        buffer = b""
+
         while True:
             data = ser.read(1)
             if data == b'{':
-                ultrasonic_buffer = b"{"
-                mpu6050_buffer = b"{"
-            elif ultrasonic_buffer and data == b'\n':
+                buffer = b"{"
+            elif buffer and data == b'\n':
                 try:
-                    ultrasonic_json_data = ultrasonic_buffer.decode('utf-8', 'ignore')
-                    ultrasonic_event = {
-                        "event": "ultrasonic_data",
-                        "data": ultrasonic_json_data.strip()
-                    }
-                    print(ultrasonic_event)
+                    json_data = buffer.decode('utf-8', 'ignore')
+                    print(json_data)
                     
-                    # Publish the ultrasonic data to the MQTT topic
-                    client.publish(MQTT_TOPIC_SENSOR_ULTRASONIC, json.dumps(ultrasonic_event))
+                    # Check if the JSON contains the "left" key to differentiate between sensor types
+                    if "left" in json_data:
+                        # Publish the data to the ultrasonic sensor topic
+                        ultrasonic_event = {
+                            "event": "ultrasonic_data",
+                            "data": json_data
+                        }
+                        client.publish(MQTT_TOPIC_SENSOR_ULTRASONIC, json.dumps(ultrasonic_event))
+                    else:
+                        # Publish the data to the MPU6050 sensor topic
+                        mpu6050_event = {
+                            "event": "mpu6050_data",
+                            "data": json_data
+                        }
+                        client.publish(MQTT_TOPIC_SENSOR_MPU6050, json.dumps(mpu6050_event))
+                        
                 except Exception as e:
-                    print(f"Error processing ultrasonic data: {str(e)}")
-                ultrasonic_buffer = b""
-            elif mpu6050_buffer and data == b'\n':
-                try:
-                    mpu6050_json_data = mpu6050_buffer.decode('utf-8', 'ignore')
-                    mpu6050_event = {
-                        "event": "mpu6050_data",
-                        "data": mpu6050_json_data.strip()
-                    }
-                    print(mpu6050_event)
-                    
-                    # Publish the MPU6050 data to the MQTT topic
-                    client.publish(MQTT_TOPIC_SENSOR_MPU6050, json.dumps(mpu6050_event))
-                except Exception as e:
-                    print(f"Error processing MPU6050 data: {str(e)}")
-                mpu6050_buffer = b""
-            elif ultrasonic_buffer:
-                ultrasonic_buffer += data
-            elif mpu6050_buffer:
-                mpu6050_buffer += data
+                    print(f"Error processing sensor data: {str(e)}")
+                buffer = b""
+            elif buffer:
+                buffer += data
 
 except Exception as e:
     print(f"Error reading serial data: {str(e)}")

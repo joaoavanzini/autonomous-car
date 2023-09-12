@@ -1,5 +1,9 @@
 import json
 import matplotlib.pyplot as plt
+import numpy as np
+
+# Rover properties
+rover_weight = 1280  # grams
 
 # Initialize lists to store relevant data
 ultrasonic_data_list = []
@@ -13,6 +17,22 @@ forward_directions = []
 backward_directions = []
 stop_directions = []
 
+# Rover initial state
+x_position = 0
+y_position = 0
+orientation = 0
+linear_velocity = 0
+angular_velocity = 0
+
+# Lists to store kinematic data
+timestamps = []  # Timestamps for the data points
+positions = []  # Rover positions
+velocities = []  # Rover linear velocities
+orientations = []  # Rover orientations
+
+# Time step (you might need to adjust this based on your data)
+time_step = 0.1  # seconds
+
 # Read the "mqtt_messages.txt" file line by line
 with open("mqtt_messages.txt", "r") as file:
     lines = file.readlines()
@@ -25,16 +45,10 @@ for line in lines:
             # Load additional JSON data from the ultrasonic message
             data = json.loads(message_data["data"])
             ultrasonic_data = {
-                "left": data["left"],
-                "central": data["central"],
-                "right": data["right"],
+                "left": min(data["left"], 150),  # Limit max distance to 150 cm
+                "central": min(data["central"], 150),
+                "right": min(data["right"], 150),
             }
-            
-            # Remove ultrasonic values above 150 cm
-            for key, value in ultrasonic_data.items():
-                if value > 150:
-                    ultrasonic_data[key] = 150
-            
             ultrasonic_data_list.append(ultrasonic_data)
         elif "Topic: /rover/sensors/mpu6050" in line:
             # Load additional JSON data from the MPU6050 message
@@ -69,12 +83,40 @@ for line in lines:
                 elif message_data["direction"] == "STOP":
                     stop_directions.append(len(ultrasonic_data_list))
             else:
+                # Handle control messages without "speed" field by ignoring them
                 print(f"Ignoring control message without 'speed' field: {line}")
     except json.JSONDecodeError:
+        # Handle invalid messages by ignoring them
         print(f"Ignoring invalid message: {line}")
 
+# Kinematics calculations and data recording
+for i in range(1, len(mpu6050_data_list)):
+    # Calculate linear acceleration
+    acceleration_x = mpu6050_data_list[i]["acceleration_x"]
+    acceleration_y = mpu6050_data_list[i]["acceleration_y"]
+    linear_acceleration = np.sqrt(acceleration_x**2 + acceleration_y**2)
+    
+    # Calculate angular acceleration
+    gyro_z = mpu6050_data_list[i]["gyro_z"]
+    angular_acceleration = gyro_z
+    
+    # Update velocities
+    linear_velocity += linear_acceleration * time_step
+    angular_velocity += angular_acceleration * time_step
+    
+    # Update positions
+    orientation += angular_velocity * time_step
+    x_position += linear_velocity * np.cos(orientation) * time_step
+    y_position += linear_velocity * np.sin(orientation) * time_step
+    
+    # Record kinematic data
+    timestamps.append(i * time_step)
+    positions.append((x_position, y_position))
+    velocities.append(linear_velocity)
+    orientations.append(orientation)
+
 # Create a figure with multiple subplots
-fig, axes = plt.subplots(4, 1, figsize=(10, 12))
+fig, axes = plt.subplots(7, 1, figsize=(10, 18))
 
 # Plot ultrasonic sensor data
 axes[0].plot([data["left"] for data in ultrasonic_data_list], label="Left Distance")
@@ -115,6 +157,32 @@ axes[3].set_xlabel("Time Steps")
 axes[3].set_title("Rover Direction Commands")
 axes[3].legend()
 axes[3].grid(True)
+
+# Plot rover position
+x_positions = [pos[0] for pos in positions]
+y_positions = [pos[1] for pos in positions]
+axes[4].plot(x_positions, y_positions, label="Rover Position")
+axes[4].set_xlabel("X Position (m)")
+axes[4].set_ylabel("Y Position (m)")
+axes[4].set_title("Rover Position")
+axes[4].legend()
+axes[4].grid(True)
+
+# Plot linear velocity
+axes[5].plot(timestamps, velocities, label="Linear Velocity")
+axes[5].set_xlabel("Time Steps")
+axes[5].set_ylabel("Linear Velocity (m/s)")
+axes[5].set_title("Rover Linear Velocity")
+axes[5].legend()
+axes[5].grid(True)
+
+# Plot orientation
+axes[6].plot(timestamps, orientations, label="Orientation")
+axes[6].set_xlabel("Time Steps")
+axes[6].set_ylabel("Orientation (rad)")
+axes[6].set_title("Rover Orientation")
+axes[6].legend()
+axes[6].grid(True)
 
 # Adjust subplot layout
 plt.tight_layout()

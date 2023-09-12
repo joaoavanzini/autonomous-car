@@ -37,23 +37,23 @@ class Rover:
         try:
             self.motor1.set_speed(speed)
             self.motor2.set_speed(speed)
-            GPIO.output(self.motor1a, GPIO.HIGH)
-            GPIO.output(self.motor1b, GPIO.LOW)
-            GPIO.output(self.motor2a, GPIO.HIGH)
-            GPIO.output(self.motor2b, GPIO.LOW)
-        except Exception as e:
-            self.report_error(f"Error while moving forward: {str(e)}")
-
-    def move_backward(self, speed):
-        try:
-            self.motor1.set_speed(speed)
-            self.motor2.set_speed(speed)
             GPIO.output(self.motor1a, GPIO.LOW)
             GPIO.output(self.motor1b, GPIO.HIGH)
             GPIO.output(self.motor2a, GPIO.LOW)
             GPIO.output(self.motor2b, GPIO.HIGH)
         except Exception as e:
             self.report_error(f"Error while moving backward: {str(e)}")
+
+    def move_backward(self, speed):
+        try:
+            self.motor1.set_speed(speed)
+            self.motor2.set_speed(speed)
+            GPIO.output(self.motor1a, GPIO.HIGH)
+            GPIO.output(self.motor1b, GPIO.LOW)
+            GPIO.output(self.motor2a, GPIO.HIGH)
+            GPIO.output(self.motor2b, GPIO.LOW)
+        except Exception as e:
+            self.report_error(f"Error while moving forward: {str(e)}")
 
     def turn_right(self, speed):
         try:

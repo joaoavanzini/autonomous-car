@@ -11,8 +11,8 @@ user_id = str(uuid.uuid4())
 
 # Define the MQTT message payload for each key, including speed and user ID
 KEY_MAPPINGS = {
-    keyboard.Key.up: f'{{"user_id": "{user_id}", "direction": "BACKWARD", "speed": 100}}',
-    keyboard.Key.down: f'{{"user_id": "{user_id}", "direction": "FORWARD", "speed": 100}}',
+    keyboard.Key.up: f'{{"user_id": "{user_id}", "direction": "FORWARD", "speed": 100}}',
+    keyboard.Key.down: f'{{"user_id": "{user_id}", "direction": "BACKWARD", "speed": 100}}',
     keyboard.Key.left: f'{{"user_id": "{user_id}", "direction": "LEFT", "speed": 100}}',
     keyboard.Key.right: f'{{"user_id": "{user_id}", "direction": "RIGHT", "speed": 100}}'
 }

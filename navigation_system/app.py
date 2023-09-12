@@ -2,8 +2,8 @@ import paho.mqtt.client as mqtt
 import time
 
 # MQTT broker settings
-broker_address = "192.168.0.105"  # Change this to your MQTT broker's address
-broker_port = 1883  # Change this to your MQTT broker's port
+broker_address = "192.168.0.105"
+broker_port = 1883
 
 # Text file to store MQTT messages
 output_file = "mqtt_messages.txt"

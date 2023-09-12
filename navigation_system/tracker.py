@@ -29,6 +29,12 @@ for line in lines:
                 "central": data["central"],
                 "right": data["right"],
             }
+            
+            # Remova valores de ultrassom acima de 150 cm
+            for key, value in ultrasonic_data.items():
+                if value > 150:
+                    ultrasonic_data[key] = 150
+            
             ultrasonic_data_list.append(ultrasonic_data)
         elif "Topic: /rover/sensors/mpu6050" in line:
             # Carregue os dados JSON adicionais da mensagem do MPU6050

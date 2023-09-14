@@ -32,7 +32,7 @@ class MQTTClient:
             speed = data.get('speed', 100)
             user_id = data.get('user_id', '')
             message_id = data.get('message_id', '')
-            
+
             direction_map = {
                 'FORWARD': self.rover.move_forward,
                 'BACKWARD': self.rover.move_backward,
@@ -40,7 +40,7 @@ class MQTTClient:
                 'LEFT': self.rover.turn_left,
                 'STOP': self.rover.stop
             }
-            
+
             action = direction_map.get(direction)
             if action:
                 action(speed)
@@ -48,18 +48,20 @@ class MQTTClient:
                 error_message = f"Invalid direction: {direction}"
                 logger.error(error_message)
                 self.report_error(error_message)
-            
-            timestamp = int(time.time())
-            
+
+            timestamp_micros = data.get('timestamp_micros', 0)
+            timestamp_seconds = timestamp_micros / 1e6  # Convert micros to seconds
+
             timestamp_data = {
                 "user_id": user_id,
                 "message_id": message_id,
-                "timestamp": timestamp
+                "timestamp_micros": timestamp_micros,
+                "timestamp_seconds": timestamp_seconds
             }
             timestamp_json = json.dumps(timestamp_data)
-            
+
             self.client.publish(MQTT_TOPIC_CONTROLLER + "/timestamp", timestamp_json)
-            
+
         except json.JSONDecodeError:
             logger.error("Error decoding JSON in MQTT payload")
 

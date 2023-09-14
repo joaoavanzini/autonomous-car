@@ -17,13 +17,13 @@ def generate_message_id():
 # Define the MQTT message payload for each key, including speed, user_id, and message_id
 def create_payload(direction):
     message_id = generate_message_id()
-    timestamp = int(time.time())
+    timestamp_micros = int(time.time() * 1e6)  # Microseconds since epoch
     payload = {
         "user_id": user_id,
         "message_id": message_id,
         "direction": direction,
         "speed": 100,
-        "timestamp": timestamp
+        "timestamp_micros": timestamp_micros  # Include micros
     }
     return payload
 
@@ -47,7 +47,7 @@ def on_key_release(key):
             "message_id": generate_message_id(),
             "direction": "STOP",
             "speed": 0,
-            "timestamp": int(time.time())
+            "timestamp_micros": int(time.time() * 1e6)  # Include micros
         }
         mqtt_publish.single(MQTT_TOPIC_CONTROLLER, payload=json.dumps(payload), hostname=MQTT_BROKER_HOST)
         print(f"Published: {payload}")

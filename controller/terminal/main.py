@@ -11,33 +11,45 @@ MQTT_TOPIC_CONTROLLER = "/rover/controller"
 # Generate a random user ID
 user_id = str(uuid.uuid4())
 
-# Define the MQTT message payload for each key, including speed and user ID
+def generate_message_id():
+    return str(uuid.uuid4())
+
+# Define the MQTT message payload for each key, including speed, user_id, and message_id
+def create_payload(direction):
+    message_id = generate_message_id()
+    timestamp = int(time.time())
+    payload = {
+        "user_id": user_id,
+        "message_id": message_id,
+        "direction": direction,
+        "speed": 100,
+        "timestamp": timestamp
+    }
+    return payload
+
 KEY_MAPPINGS = {
-    keyboard.Key.up: f'{{"user_id": "{user_id}", "direction": "FORWARD", "speed": 100}}',
-    keyboard.Key.down: f'{{"user_id": "{user_id}", "direction": "BACKWARD", "speed": 100}}',
-    keyboard.Key.left: f'{{"user_id": "{user_id}", "direction": "LEFT", "speed": 100}}',
-    keyboard.Key.right: f'{{"user_id": "{user_id}", "direction": "RIGHT", "speed": 100}}'
+    keyboard.Key.up: create_payload("FORWARD"),
+    keyboard.Key.down: create_payload("BACKWARD"),
+    keyboard.Key.left: create_payload("LEFT"),
+    keyboard.Key.right: create_payload("RIGHT")
 }
 
 def on_key_press(key):
     if key in KEY_MAPPINGS:
         payload = KEY_MAPPINGS[key]
-        
-        # Get the current timestamp in Unix format (seconds since epoch)
-        timestamp = int(time.time())
-        
-        # Add the timestamp to the JSON
-        payload_dict = json.loads(payload)
-        payload_dict["timestamp"] = timestamp
-        payload = json.dumps(payload_dict)
-        
-        mqtt_publish.single(MQTT_TOPIC_CONTROLLER, payload=payload, hostname=MQTT_BROKER_HOST)
+        mqtt_publish.single(MQTT_TOPIC_CONTROLLER, payload=json.dumps(payload), hostname=MQTT_BROKER_HOST)
         print(f"Published: {payload}")
 
 def on_key_release(key):
     if key in KEY_MAPPINGS:
-        payload = f'{{"user_id": "{user_id}", "direction": "STOP"}}'
-        mqtt_publish.single(MQTT_TOPIC_CONTROLLER, payload=payload, hostname=MQTT_BROKER_HOST)
+        payload = {
+            "user_id": user_id,
+            "message_id": generate_message_id(),
+            "direction": "STOP",
+            "speed": 0,
+            "timestamp": int(time.time())
+        }
+        mqtt_publish.single(MQTT_TOPIC_CONTROLLER, payload=json.dumps(payload), hostname=MQTT_BROKER_HOST)
         print(f"Published: {payload}")
 
 # Start listening to keyboard events

@@ -1,6 +1,8 @@
 import paho.mqtt.publish as mqtt_publish
 from pynput import keyboard
 import uuid
+import time
+import json
 
 # MQTT Configuration
 MQTT_BROKER_HOST = "192.168.0.105"
@@ -20,6 +22,15 @@ KEY_MAPPINGS = {
 def on_key_press(key):
     if key in KEY_MAPPINGS:
         payload = KEY_MAPPINGS[key]
+        
+        # Get the current timestamp in Unix format (seconds since epoch)
+        timestamp = int(time.time())
+        
+        # Add the timestamp to the JSON
+        payload_dict = json.loads(payload)
+        payload_dict["timestamp"] = timestamp
+        payload = json.dumps(payload_dict)
+        
         mqtt_publish.single(MQTT_TOPIC_CONTROLLER, payload=payload, hostname=MQTT_BROKER_HOST)
         print(f"Published: {payload}")
 

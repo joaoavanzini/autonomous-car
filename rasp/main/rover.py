@@ -1,8 +1,9 @@
 # rover.py
 import RPi.GPIO as GPIO
 from motor import Motor
-from config import MOTOR1A_PIN, MOTOR1B_PIN, MOTOR1E_PIN, MOTOR2A_PIN, MOTOR2B_PIN, MOTOR2E_PIN, PWM_FREQUENCY
+from config import MOTOR1A_PIN, MOTOR1B_PIN, MOTOR1E_PIN, MOTOR2A_PIN, MOTOR2B_PIN, MOTOR2E_PIN, MQTT_BROKER_HOST, MQTT_TOPIC_STATUS, PWM_FREQUENCY
 import paho.mqtt.publish as mqtt_publish
+import time
 
 class Rover:
     def __init__(self):
@@ -42,7 +43,7 @@ class Rover:
             GPIO.output(self.motor2a, GPIO.LOW)
             GPIO.output(self.motor2b, GPIO.HIGH)
         except Exception as e:
-            self.report_error(f"Error while moving backward: {str(e)}")
+            self.report_error(f"Error while moving forward: {str(e)}")
 
     def move_backward(self, speed):
         try:
@@ -53,7 +54,7 @@ class Rover:
             GPIO.output(self.motor2a, GPIO.HIGH)
             GPIO.output(self.motor2b, GPIO.LOW)
         except Exception as e:
-            self.report_error(f"Error while moving forward: {str(e)}")
+            self.report_error(f"Error while moving backward: {str(e)}")
 
     def turn_right(self, speed):
         try:
